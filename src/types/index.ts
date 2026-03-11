@@ -80,3 +80,8 @@ export interface VoteResponse {
 export interface RegisterVoteRequest {
   option: number; // 0 = Yes, 1 = No, 2 = Abstain
 }
+
+export interface HasVotedResponse {
+  hasVoted: boolean;
+  currentVote?: 'Yes' | 'No' | 'Abstain' | null;
+}

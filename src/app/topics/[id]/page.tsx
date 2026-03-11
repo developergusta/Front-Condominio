@@ -22,17 +22,24 @@ export default function TopicDetailsPage() {
   
   const [isLoading, setIsLoading] = useState(true);
   const [isVoting, setIsVoting] = useState(false);
+  const [hasVoted, setHasVoted] = useState(false);
+  const [currentVote, setCurrentVote] = useState<'Yes' | 'No' | 'Abstain' | null>(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
   const loadData = async () => {
     try {
-      const [topicData, resultsData] = await Promise.all([
+      const [topicData, resultsData, hasVotedData] = await Promise.all([
         topicService.getById(topicId),
-        topicService.getResults(topicId)
+        topicService.getResults(topicId),
+        topicService.hasVoted(topicId)
       ]);
       setTopic(topicData);
       setResults(resultsData);
+      setHasVoted(hasVotedData.hasVoted);
+      if (hasVotedData.currentVote) {
+        setCurrentVote(hasVotedData.currentVote);
+      }
     } catch (err: any) {
       setError("Falha ao carregar detalhes do tópico");
     } finally {
@@ -53,6 +60,8 @@ export default function TopicDetailsPage() {
     try {
       await topicService.vote(topicId, { option });
       setSuccess("Seu voto foi registrado com sucesso!");
+      setHasVoted(true);
+      setCurrentVote(option === 0 ? 'Yes' : option === 1 ? 'No' : 'Abstain');
       // Reload results
       await loadData();
     } catch (err: any) {
@@ -81,6 +90,15 @@ export default function TopicDetailsPage() {
   }
 
   const isVotingStarted = new Date() >= new Date(topic.votingStart);
+  
+  const getVoteText = (voteStr: string | null) => {
+    switch (voteStr) {
+      case 'Yes': return 'Sim';
+      case 'No': return 'Não';
+      case 'Abstain': return 'Abster';
+      default: return '';
+    }
+  };
 
   return (
     <MainLayout>
@@ -133,30 +151,38 @@ export default function TopicDetailsPage() {
                      A votação ainda não começou.
                    </div>
                 ) : (
-                  <div className="flex flex-col sm:flex-row gap-4">
-                    <Button 
-                      className="flex-1 bg-green-600 hover:bg-green-700 text-white gap-2" 
-                      onClick={() => handleVote(0)}
-                      disabled={isVoting || !!success}
-                    >
-                      <ThumbsUp className="w-4 h-4" /> Sim
-                    </Button>
-                    <Button 
-                      className="flex-1 bg-red-600 hover:bg-red-700 text-white gap-2" 
-                      onClick={() => handleVote(1)}
-                      disabled={isVoting || !!success}
-                    >
-                      <ThumbsDown className="w-4 h-4" /> Não
-                    </Button>
-                    <Button 
-                      variant="outline"
-                      className="flex-1 gap-2" 
-                      onClick={() => handleVote(2)}
-                      disabled={isVoting || !!success}
-                    >
-                      <Minus className="w-4 h-4" /> Abster
-                    </Button>
-                  </div>
+                  <>
+                    {hasVoted && currentVote && (
+                       <div className="p-4 mb-4 bg-blue-50 text-blue-800 rounded-md border border-blue-200 text-center text-sm font-medium">
+                         Seu voto atual é: <span className="font-bold">{getVoteText(currentVote)}</span>
+                       </div>
+                    )}
+                    
+                    <div className="flex flex-col sm:flex-row gap-4">
+                      <Button 
+                        className={`flex-1 gap-2 ${currentVote === 'Yes' ? 'bg-green-700 ring-2 ring-green-400 ring-offset-2' : 'bg-green-600 hover:bg-green-700'} text-white`} 
+                        onClick={() => handleVote(0)}
+                        disabled={isVoting}
+                      >
+                        <ThumbsUp className="w-4 h-4" /> Sim
+                      </Button>
+                      <Button 
+                        className={`flex-1 gap-2 ${currentVote === 'No' ? 'bg-red-700 ring-2 ring-red-400 ring-offset-2' : 'bg-red-600 hover:bg-red-700'} text-white`} 
+                        onClick={() => handleVote(1)}
+                        disabled={isVoting}
+                      >
+                        <ThumbsDown className="w-4 h-4" /> Não
+                      </Button>
+                      <Button 
+                        variant={currentVote === 'Abstain' ? 'secondary' : 'outline'}
+                        className={`flex-1 gap-2 ${currentVote === 'Abstain' ? 'ring-2 ring-slate-400 ring-offset-2' : ''}`} 
+                        onClick={() => handleVote(2)}
+                        disabled={isVoting}
+                      >
+                        <Minus className="w-4 h-4" /> Abster
+                      </Button>
+                    </div>
+                  </>
                 )}
               </CardContent>
             </Card>
