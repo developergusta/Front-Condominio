@@ -5,7 +5,8 @@ import {
   VoteResponse, 
   VoteTopicResponse, 
   VotingResultResponse,
-  HasVotedResponse
+  HasVotedResponse,
+  TopicReportResponse
 } from '@/types';
 
 export const topicService = {
@@ -32,4 +33,7 @@ export const topicService = {
 
   hasVoted: (topicId: string) => 
     fetchApi<HasVotedResponse>(`/topics/${topicId}/has-voted`),
+
+  getReport: (topicId: string) =>
+    fetchApi<TopicReportResponse>(`/topics/${topicId}/report`),
 };

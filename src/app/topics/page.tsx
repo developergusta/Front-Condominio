@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/Button";
 import { Loader2, Plus, Clock, CheckCircle2 } from "lucide-react";
 
 export default function TopicsList() {
-  const { condominiumId } = useAuth();
+  const { condominiumId, role } = useAuth();
   const [topics, setTopics] = useState<VoteTopicResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -42,11 +42,14 @@ export default function TopicsList() {
           <h2 className="text-3xl font-bold tracking-tight text-slate-900">Tópicos de Votação</h2>
           <p className="text-slate-500 mt-1">Gerencie e vote em tópicos ativos.</p>
         </div>
-        <Link href="/topics/new">
-          <Button className="flex items-center gap-2">
-            <Plus className="h-4 w-4" /> Criar Tópico
-          </Button>
-        </Link>
+        
+        {role === 'Admin' && (
+          <Link href="/topics/new">
+            <Button className="flex items-center gap-2">
+              <Plus className="h-4 w-4" /> Criar Tópico
+            </Button>
+          </Link>
+        )}
       </div>
 
       {error && (

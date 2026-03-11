@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
-import { VoteTopicResponse, VotingResultResponse } from "@/types";
+import { VoteTopicResponse, VotingResultResponse, TopicReportResponse } from "@/types";
 import { topicService } from "@/lib/api/topic.service";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/Card";
@@ -13,7 +13,7 @@ import { Loader2, ArrowLeft, CheckCircle2, Clock, ThumbsUp, ThumbsDown, Minus } 
 import { useParams } from "next/navigation";
 
 export default function TopicDetailsPage() {
-  const { residentId } = useAuth();
+  const { residentId, role } = useAuth();
   const params = useParams();
   const topicId = params.id as string;
 
@@ -24,6 +24,7 @@ export default function TopicDetailsPage() {
   const [isVoting, setIsVoting] = useState(false);
   const [hasVoted, setHasVoted] = useState(false);
   const [currentVote, setCurrentVote] = useState<'Yes' | 'No' | 'Abstain' | null>(null);
+  const [report, setReport] = useState<TopicReportResponse | null>(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -40,6 +41,11 @@ export default function TopicDetailsPage() {
       if (hasVotedData.currentVote) {
         setCurrentVote(hasVotedData.currentVote);
       }
+
+      if (role === 'Admin' && topicData.status === 'Closed') {
+        const reportData = await topicService.getReport(topicId);
+        setReport(reportData);
+      }
     } catch (err: any) {
       setError("Falha ao carregar detalhes do tópico");
     } finally {
@@ -48,9 +54,9 @@ export default function TopicDetailsPage() {
   };
 
   useEffect(() => {
-    if (topicId) loadData();
+    if (topicId && role !== undefined) loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [topicId]);
+  }, [topicId, role]);
 
   const handleVote = async (option: number) => {
     setIsVoting(true);
@@ -228,6 +234,44 @@ export default function TopicDetailsPage() {
               </div>
             </CardContent>
           </Card>
+
+          {role === 'Admin' && report && (
+            <Card className="border-blue-200 mt-6 bg-blue-50/20 shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-blue-800">Relatório Consolidado do Síndico</CardTitle>
+                <CardDescription>Visualização profunda de auditoria</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4 text-sm">
+                <div className="flex justify-between border-b border-blue-100 pb-2">
+                  <span className="text-slate-600">ID do Tópico:</span>
+                  <span className="font-mono text-slate-900">{report.topicId.split('-')[0]}...</span>
+                </div>
+                <div className="flex justify-between border-b border-blue-100 pb-2">
+                  <span className="text-slate-600">Status Final:</span>
+                  <span className="font-medium text-slate-900">{report.status}</span>
+                </div>
+                <div className="flex justify-between border-b border-blue-100 pb-2">
+                  <span className="text-slate-600">Total de Votos Válidos:</span>
+                  <span className="font-bold text-slate-900">{report.totalVotes}</span>
+                </div>
+                
+                <div className="mt-4 bg-white p-3 rounded-md border border-blue-100">
+                  <h4 className="font-medium mb-2 text-slate-700">Apuramento Oficial</h4>
+                  <ul className="space-y-1">
+                    <li className="flex justify-between text-green-700">
+                      <span>Sim:</span> <strong>{report.yesVotes}</strong>
+                    </li>
+                    <li className="flex justify-between text-red-700">
+                      <span>Não:</span> <strong>{report.noVotes}</strong>
+                    </li>
+                    <li className="flex justify-between text-slate-600">
+                      <span>Abstenções:</span> <strong>{report.abstainVotes}</strong>
+                    </li>
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </MainLayout>

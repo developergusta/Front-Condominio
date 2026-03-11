@@ -25,6 +25,7 @@ export interface AuthResponse {
   residentId: string;
   name: string;
   condominiumId: string;
+  role?: string;
 }
 
 export interface LoginRequest {
@@ -84,4 +85,23 @@ export interface RegisterVoteRequest {
 export interface HasVotedResponse {
   hasVoted: boolean;
   currentVote?: 'Yes' | 'No' | 'Abstain' | null;
+}
+
+export interface CondominiumDashboardResponse {
+  totalResidents: number;
+  openTopics: number;
+  closedTopics: number;
+}
+
+export interface TopicReportResponse {
+  topicId: string;
+  title: string;
+  description: string;
+  votingStart: string;
+  votingEnd: string;
+  status: string;
+  totalVotes: number;
+  yesVotes: number;
+  noVotes: number;
+  abstainVotes: number;
 }

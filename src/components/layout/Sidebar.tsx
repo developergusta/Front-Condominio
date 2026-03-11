@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 export default function Sidebar() {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, role } = useAuth();
   const pathname = usePathname();
 
   if (!isAuthenticated) return null;
@@ -15,8 +15,12 @@ export default function Sidebar() {
   const navigation = [
     { name: "Início", href: "/", icon: Home },
     { name: "Tópicos", href: "/topics", icon: List },
-    { name: "Novo Tópico", href: "/topics/new", icon: PlusCircle },
   ];
+
+  if (role === 'Admin') {
+    navigation.push({ name: "Novo Tópico", href: "/topics/new", icon: PlusCircle });
+    navigation.push({ name: "Configurações", href: "/settings", icon: Settings });
+  }
 
   return (
     <div className="flex h-full w-64 flex-col bg-slate-900 text-white shadow-xl">

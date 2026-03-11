@@ -2,12 +2,14 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { jwtDecode } from "jwt-decode";
 
 interface AuthContextType {
   token: string | null;
   condominiumId: string | null;
   residentId: string | null;
   name: string | null;
+  role: string | null;
   login: (token: string, condominiumId: string, residentId: string, name: string) => void;
   logout: () => void;
   isAuthenticated: boolean;
@@ -21,10 +23,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [condominiumId, setCondominiumId] = useState<string | null>(null);
   const [residentId, setResidentId] = useState<string | null>(null);
   const [name, setName] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
+    useEffect(() => {
     const storedToken = localStorage.getItem("token");
     const storedCondoId = localStorage.getItem("condominiumId");
     const storedResidentId = localStorage.getItem("residentId");
@@ -35,6 +38,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setCondominiumId(storedCondoId);
       setResidentId(storedResidentId);
       setName(storedName);
+      
+      try {
+        const decoded: any = jwtDecode(storedToken);
+        const userRole = decoded.role || decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+        setRole(userRole || 'Resident');
+      } catch (e) {
+        setRole(null);
+      }
     }
     setIsLoading(false);
   }, []);
@@ -48,6 +59,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setCondominiumId(condoId);
     setResidentId(resId);
     setName(resName);
+    
+    try {
+      const decoded: any = jwtDecode(jwtToken);
+      const userRole = decoded.role || decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+      setRole(userRole || 'Resident');
+    } catch (e) {
+      setRole(null);
+    }
+    
     router.push("/topics");
   };
 
@@ -60,6 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setCondominiumId(null);
     setResidentId(null);
     setName(null);
+    setRole(null);
     router.push("/setup");
   };
 
@@ -70,6 +91,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         condominiumId,
         residentId,
         name,
+        role,
         login,
         logout,
         isAuthenticated: !!token,
