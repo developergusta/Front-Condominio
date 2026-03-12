@@ -2,14 +2,15 @@
 
 import { useEffect, useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
-import { VoteTopicResponse, VotingResultResponse, TopicReportResponse } from "@/types";
+import { VoteTopicResponse, VotingResultResponse, TopicReportResponse, TopicVoteDetailResponse } from "@/types";
 import { topicService } from "@/lib/api/topic.service";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { Textarea } from "@/components/ui/Textarea";
 import { format } from "date-fns";
 import Link from "next/link";
-import { Loader2, ArrowLeft, CheckCircle2, Clock, ThumbsUp, ThumbsDown, Minus } from "lucide-react";
+import { Loader2, ArrowLeft, CheckCircle2, Clock, ThumbsUp, ThumbsDown, Minus, MessageSquareText } from "lucide-react";
 import { useParams } from "next/navigation";
 
 export default function TopicDetailsPage() {
@@ -19,24 +20,28 @@ export default function TopicDetailsPage() {
 
   const [topic, setTopic] = useState<VoteTopicResponse | null>(null);
   const [results, setResults] = useState<VotingResultResponse | null>(null);
+  const [votesList, setVotesList] = useState<TopicVoteDetailResponse[]>([]);
   
   const [isLoading, setIsLoading] = useState(true);
   const [isVoting, setIsVoting] = useState(false);
   const [hasVoted, setHasVoted] = useState(false);
   const [currentVote, setCurrentVote] = useState<'Yes' | 'No' | 'Abstain' | null>(null);
+  const [justification, setJustification] = useState("");
   const [report, setReport] = useState<TopicReportResponse | null>(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
   const loadData = async () => {
     try {
-      const [topicData, resultsData, hasVotedData] = await Promise.all([
+      const [topicData, resultsData, hasVotedData, votesData] = await Promise.all([
         topicService.getById(topicId),
         topicService.getResults(topicId),
-        topicService.hasVoted(topicId)
+        topicService.hasVoted(topicId),
+        topicService.getVotes(topicId).catch(() => []) // Catching in case it has restrictions
       ]);
       setTopic(topicData);
       setResults(resultsData);
+      setVotesList(votesData);
       setHasVoted(hasVotedData.hasVoted);
       if (hasVotedData.currentVote) {
         setCurrentVote(hasVotedData.currentVote);
@@ -58,16 +63,20 @@ export default function TopicDetailsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [topicId, role]);
 
-  const handleVote = async (option: number) => {
+  const handleVote = async (optionNum: number) => {
     setIsVoting(true);
     setError("");
     setSuccess("");
 
     try {
-      await topicService.vote(topicId, { option });
+      const optionStr = optionNum === 0 ? 'Yes' : optionNum === 1 ? 'No' : 'Abstain';
+      await topicService.vote(topicId, { 
+        option: optionStr, 
+        justification: justification.trim() || undefined 
+      });
       setSuccess("Seu voto foi registrado com sucesso!");
       setHasVoted(true);
-      setCurrentVote(option === 0 ? 'Yes' : option === 1 ? 'No' : 'Abstain');
+      setCurrentVote(optionStr);
       // Reload results
       await loadData();
     } catch (err: any) {
@@ -188,11 +197,64 @@ export default function TopicDetailsPage() {
                         <Minus className="w-4 h-4" /> Abster
                       </Button>
                     </div>
+
+                    <div className="pt-2">
+                       <p className="text-sm text-slate-500 font-medium mb-2">Justifique seu voto (Opcional):</p>
+                       <Textarea 
+                         placeholder="Deixe um comentário sobre o seu voto..." 
+                         value={justification} 
+                         onChange={(e) => setJustification(e.target.value)}
+                         className="resize-none"
+                         rows={2}
+                         maxLength={500}
+                         disabled={isVoting}
+                       />
+                    </div>
                   </>
                 )}
               </CardContent>
             </Card>
           )}
+
+          <Card className="shadow-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MessageSquareText className="w-5 h-5 text-blue-600" />
+                Transparência de Votos
+              </CardTitle>
+              <CardDescription>Veja o histórico e as justificativas dos condôminos.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {votesList.length === 0 ? (
+                 <p className="text-sm text-slate-500 text-center py-4">Nenhum voto registrado ainda.</p>
+              ) : (
+                <div className="space-y-4">
+                  {votesList.map((vote) => (
+                    <div key={vote.id} className="border border-slate-100 bg-slate-50/50 p-4 rounded-lg">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <p className="font-semibold text-sm text-slate-900">{vote.residentName}</p>
+                          <p className="text-xs text-slate-500">Apt {vote.residentApartment} • {format(new Date(vote.createdAt), "dd/MM/yyyy HH:mm")}</p>
+                        </div>
+                        <span className={`text-xs font-bold px-2 py-1 rounded-md ${
+                          vote.option === 'Yes' ? 'bg-green-100 text-green-700' :
+                          vote.option === 'No' ? 'bg-red-100 text-red-700' :
+                          'bg-slate-200 text-slate-700'
+                        }`}>
+                          {getVoteText(vote.option)}
+                        </span>
+                      </div>
+                      {vote.justification && (
+                        <p className="text-sm text-slate-700 mt-2 p-3 bg-white border border-slate-100 rounded-md italic">
+                          &quot;{vote.justification}&quot;
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
 
         {/* Right Column: Live Results */}

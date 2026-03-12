@@ -79,7 +79,8 @@ export interface VoteResponse {
 }
 
 export interface RegisterVoteRequest {
-  option: number; // 0 = Yes, 1 = No, 2 = Abstain
+  option: 'Yes' | 'No' | 'Abstain' | number; // 0 = Yes, 1 = No, 2 = Abstain
+  justification?: string;
 }
 
 export interface HasVotedResponse {
@@ -104,4 +105,13 @@ export interface TopicReportResponse {
   yesVotes: number;
   noVotes: number;
   abstainVotes: number;
+}
+
+export interface TopicVoteDetailResponse {
+  id: string;
+  residentName: string;
+  residentApartment: string;
+  option: 'Yes' | 'No' | 'Abstain';
+  justification?: string;
+  createdAt: string;
 }
