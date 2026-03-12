@@ -8,19 +8,26 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { useEffect, useState } from "react";
 import { condominiumService } from "@/lib/api/condominium.service";
+import { topicService } from "@/lib/api/topic.service";
 import { CondominiumDashboardResponse } from "@/types";
 
 export default function Home() {
   const { condominiumId, residentId, role, name } = useAuth();
   const [dashboard, setDashboard] = useState<CondominiumDashboardResponse | null>(null);
+  const [canCreateTopic, setCanCreateTopic] = useState(true);
   
   useEffect(() => {
     if (role === 'Admin' && condominiumId) {
       condominiumService.getDashboard(condominiumId)
         .then(setDashboard)
         .catch(console.error);
+        
+      topicService.getAll().then(topics => {
+        const adminOpenTopics = topics.filter(t => t.createdByResidentId === residentId && t.status === 'Open').length;
+        setCanCreateTopic(adminOpenTopics < 2);
+      }).catch(console.error);
     }
-  }, [role, condominiumId]);
+  }, [role, condominiumId, residentId]);
 
   return (
     <MainLayout>
@@ -92,9 +99,13 @@ export default function Home() {
             <Button size="lg">Ver Tópicos Abertos</Button>
           </Link>
           {role === 'Admin' && (
-            <Link href="/topics/new">
-              <Button size="lg" variant="outline">Criar Novo Tópico</Button>
-            </Link>
+            canCreateTopic ? (
+              <Link href="/topics/new">
+                <Button size="lg" variant="outline">Criar Novo Tópico</Button>
+              </Link>
+            ) : (
+              <Button size="lg" variant="outline" disabled title="Você já possui 2 tópicos em aberto">Criar Novo Tópico</Button>
+            )
           )}
         </div>
       </div>

@@ -39,7 +39,18 @@ export async function fetchApi<T>(endpoint: string, options?: RequestInit): Prom
 
   const text = await response.text();
   console.log(`[API Response Body]`, text ? text.substring(0, 100) + (text.length > 100 ? '...' : '') : '<empty>');
-  const data = text ? JSON.parse(text) : {};
+  
+  let data: any = {};
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      if (!response.ok) {
+        throw new Error(text);
+      }
+      return text as unknown as T;
+    }
+  }
 
   if (!response.ok) {
     // We try to capture ProblemDetails or validation problem dictionaries

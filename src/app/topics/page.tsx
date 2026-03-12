@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/Button";
 import { Loader2, Plus, Clock, CheckCircle2 } from "lucide-react";
 
 export default function TopicsList() {
-  const { condominiumId, role } = useAuth();
+  const { condominiumId, residentId, role } = useAuth();
   const [topics, setTopics] = useState<VoteTopicResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -35,6 +35,9 @@ export default function TopicsList() {
     }
   }, [condominiumId]);
 
+  const adminOpenTopics = topics.filter(t => t.createdByResidentId === residentId && t.status === 'Open').length;
+  const canCreateTopic = role === 'Admin' && adminOpenTopics < 2;
+
   return (
     <MainLayout>
       <div className="flex justify-between items-center mb-6">
@@ -44,11 +47,17 @@ export default function TopicsList() {
         </div>
         
         {role === 'Admin' && (
-          <Link href="/topics/new">
-            <Button className="flex items-center gap-2">
+          canCreateTopic ? (
+            <Link href="/topics/new">
+              <Button className="flex items-center gap-2">
+                <Plus className="h-4 w-4" /> Criar Tópico
+              </Button>
+            </Link>
+          ) : (
+            <Button className="flex items-center gap-2" disabled title="Você já possui 2 tópicos em aberto">
               <Plus className="h-4 w-4" /> Criar Tópico
             </Button>
-          </Link>
+          )
         )}
       </div>
 
