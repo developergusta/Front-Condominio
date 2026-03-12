@@ -10,9 +10,10 @@ import { useEffect, useState } from "react";
 import { condominiumService } from "@/lib/api/condominium.service";
 import { topicService } from "@/lib/api/topic.service";
 import { CondominiumDashboardResponse } from "@/types";
+import LandingPage from "@/components/marketing/LandingPage";
 
 export default function Home() {
-  const { condominiumId, residentId, role, name } = useAuth();
+  const { isAuthenticated, condominiumId, residentId, role, name } = useAuth();
   const [dashboard, setDashboard] = useState<CondominiumDashboardResponse | null>(null);
   const [canCreateTopic, setCanCreateTopic] = useState(true);
   
@@ -28,6 +29,10 @@ export default function Home() {
       }).catch(console.error);
     }
   }, [role, condominiumId, residentId]);
+
+  if (!isAuthenticated) {
+    return <LandingPage />;
+  }
 
   return (
     <MainLayout>

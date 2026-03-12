@@ -12,7 +12,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated && pathname !== "/setup") {
+    if (!isLoading && !isAuthenticated && pathname !== "/setup" && pathname !== "/") {
       router.push("/setup");
     }
   }, [isLoading, isAuthenticated, pathname, router]);
@@ -23,6 +23,10 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
       </div>
     );
+  }
+
+  if (!isAuthenticated && pathname === "/") {
+    return <>{children}</>;
   }
 
   return (
