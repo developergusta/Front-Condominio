@@ -16,10 +16,10 @@ export default function Sidebar() {
   const navigation = [
     { name: "Início", href: "/", icon: Home },
     { name: "Tópicos", href: "/topics", icon: List },
+    { name: "Novo Tópico", href: "/topics/new", icon: PlusCircle },
   ];
-
+  
   if (role === 'Admin') {
-    navigation.push({ name: "Novo Tópico", href: "/topics/new", icon: PlusCircle });
     navigation.push({ name: "Configurações", href: "/settings", icon: Settings });
   }
 
@@ -40,7 +40,7 @@ export default function Sidebar() {
           <div className="bg-blue-600 p-1.5 rounded-lg shadow-lg shadow-blue-900/50">
             <Building2 className="h-5 w-5 text-white" />
           </div>
-          <span className="text-lg font-bold tracking-tight text-white">Unanimato</span>
+          <span className="text-lg font-bold tracking-tight text-white">Unanime</span>
         </div>
       </div>
 

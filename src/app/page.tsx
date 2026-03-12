@@ -28,14 +28,16 @@ export default function Home() {
   const [canCreateTopic, setCanCreateTopic] = useState(true);
 
   useEffect(() => {
-    if (role === 'Admin' && condominiumId) {
-      condominiumService.getDashboard(condominiumId)
-        .then(setDashboard)
-        .catch(console.error);
+    if (condominiumId) {
+      if (role === 'Admin') {
+        condominiumService.getDashboard(condominiumId)
+          .then(setDashboard)
+          .catch(console.error);
+      }
 
       topicService.getAll().then(topics => {
-        const adminOpenTopics = topics.filter(t => t.createdByResidentId === residentId && t.status === 'Open').length;
-        setCanCreateTopic(adminOpenTopics < 2);
+        const userOpenTopics = topics.filter(t => t.createdByResidentId === residentId && t.status === 'Open').length;
+        setCanCreateTopic(userOpenTopics < 2);
       }).catch(console.error);
     }
   }, [role, condominiumId, residentId]);
@@ -149,18 +151,16 @@ export default function Home() {
                     <ArrowRight className="h-4 w-4 ml-1" />
                   </Button>
                 </Link>
-                {role === 'Admin' && (
-                  canCreateTopic ? (
-                    <Link href="/topics/new">
-                      <Button size="lg" variant="outline" className="gap-2">
-                        Criar Novo Tópico
-                      </Button>
-                    </Link>
-                  ) : (
-                    <Button size="lg" variant="outline" disabled title="Você já possui 2 tópicos em aberto">
+                {canCreateTopic ? (
+                  <Link href="/topics/new">
+                    <Button size="lg" variant="outline" className="gap-2">
                       Criar Novo Tópico
                     </Button>
-                  )
+                  </Link>
+                ) : (
+                  <Button size="lg" variant="outline" disabled title="Você já possui 2 tópicos em aberto">
+                    Criar Novo Tópico
+                  </Button>
                 )}
               </div>
             </CardContent>

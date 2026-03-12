@@ -60,7 +60,7 @@ export default function TopicDetailsPage() {
       setHasVoted(hasVotedData.hasVoted);
       if (hasVotedData.currentVote) setCurrentVote(hasVotedData.currentVote);
 
-      if (role === 'Admin' && topicData.status === 'Closed') {
+      if (topicData.status === 'Closed') {
         const reportData = await topicService.getReport(topicId);
         setReport(reportData);
       }
@@ -304,12 +304,12 @@ export default function TopicDetailsPage() {
             </motion.div>
 
             {/* Admin report */}
-            {role === 'Admin' && report && (
+            {report && (
               <motion.div variants={fadeInUp} initial="initial" animate="animate" transition={{ duration: 0.4, delay: 0.15 }}>
                 <div className="bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden">
                   <div className="h-1 w-full bg-blue-500" />
                   <div className="p-6">
-                    <h3 className="font-bold text-slate-900 mb-0.5">Relatório do Síndico</h3>
+                    <h3 className="font-bold text-slate-900 mb-0.5">Relatório Consolidado</h3>
                     <p className="text-xs text-slate-400 mb-5">Auditoria consolidada da votação</p>
                     <div className="space-y-3 text-sm">
                       {[

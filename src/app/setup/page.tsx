@@ -76,7 +76,7 @@ export default function SetupPage() {
           <div className="bg-blue-600 p-2 rounded-xl shadow-lg shadow-blue-900/50">
             <Building2 className="h-6 w-6 text-white" />
           </div>
-          <span className="text-2xl font-bold text-white tracking-tight">Unanimato</span>
+          <span className="text-2xl font-bold text-white tracking-tight">Unanime</span>
         </div>
 
         <div className="relative z-10">
@@ -104,7 +104,7 @@ export default function SetupPage() {
           </ul>
         </div>
 
-        <p className="relative z-10 text-slate-600 text-xs">© 2026 Unanimato Tecnologias</p>
+        <p className="relative z-10 text-slate-600 text-xs">© 2026 Unanime Tecnologias</p>
       </div>
 
       {/* Right panel — form */}
@@ -120,7 +120,7 @@ export default function SetupPage() {
             <div className="bg-blue-600 p-1.5 rounded-lg">
               <Building2 className="h-5 w-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-slate-900 tracking-tight">Unanimato</span>
+            <span className="text-xl font-bold text-slate-900 tracking-tight">Unanime</span>
           </div>
 
           <h1 className="text-2xl font-extrabold text-slate-900 mb-1">

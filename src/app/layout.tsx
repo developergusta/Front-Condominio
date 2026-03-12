@@ -6,7 +6,7 @@ import { AuthProvider } from "@/components/providers/AuthProvider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Votação Digital de Condomínio",
+  title: "Unanime - Votação Digital de Condomínio",
   description: "Uma plataforma de votação em condomínios",
 };
 

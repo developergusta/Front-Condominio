@@ -32,7 +32,7 @@ export default function LandingPage() {
                 <Building2 className="h-6 w-6 text-white" />
               </div>
               <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700">
-                Unanimato
+                Unanime
               </span>
             </div>
             <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
