@@ -5,7 +5,12 @@
 }
 
 @layer base {
+  * {
+    scroll-behavior: smooth;
+  }
   body {
     @apply bg-slate-50 text-slate-900;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }

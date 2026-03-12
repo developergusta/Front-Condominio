@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { Home, List, PlusCircle, LogOut, Settings } from "lucide-react";
+import { Home, List, PlusCircle, LogOut, Settings, Building2, ChevronRight } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 export default function Sidebar() {
-  const { isAuthenticated, logout, role } = useAuth();
+  const { isAuthenticated, logout, role, name } = useAuth();
   const pathname = usePathname();
 
   if (!isAuthenticated) return null;
@@ -22,48 +23,86 @@ export default function Sidebar() {
     navigation.push({ name: "Configurações", href: "/settings", icon: Settings });
   }
 
+  const initials = name
+    ? name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()
+    : '?';
+
   return (
-    <div className="flex h-full w-64 flex-col bg-slate-900 text-white shadow-xl">
-      <div className="flex h-16 items-center flex-shrink-0 px-4 bg-slate-950">
-        <h1 className="text-xl font-bold tracking-tight text-white">Condomínio Digital</h1>
+    <motion.div
+      initial={{ x: -20, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className="flex h-full w-64 flex-col bg-slate-900 text-white shadow-xl"
+    >
+      {/* Logo */}
+      <div className="flex h-16 items-center flex-shrink-0 px-5 bg-slate-950 border-b border-slate-800">
+        <div className="flex items-center gap-2.5">
+          <div className="bg-blue-600 p-1.5 rounded-lg shadow-lg shadow-blue-900/50">
+            <Building2 className="h-5 w-5 text-white" />
+          </div>
+          <span className="text-lg font-bold tracking-tight text-white">Unanimato</span>
+        </div>
       </div>
-      <div className="flex flex-1 flex-col overflow-y-auto pt-5 pb-4">
-        <nav className="mt-5 flex-1 space-y-1 px-2">
-          {navigation.map((item) => {
+
+      {/* Navigation */}
+      <div className="flex flex-1 flex-col overflow-y-auto pt-4 pb-4">
+        <nav className="flex-1 space-y-1 px-3">
+          {navigation.map((item, index) => {
             const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
             return (
-              <Link
+              <motion.div
                 key={item.name}
-                href={item.href}
-                className={cn(
-                  isActive
-                    ? "bg-slate-800 text-white"
-                    : "text-slate-300 hover:bg-slate-700 hover:text-white",
-                  "group flex items-center rounded-md px-2 py-2 text-sm font-medium transition-colors"
-                )}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.05 + 0.2 }}
               >
-                <item.icon
+                <Link
+                  href={item.href}
                   className={cn(
-                    isActive ? "text-white" : "text-slate-400 group-hover:text-white",
-                    "mr-3 h-5 w-5 flex-shrink-0"
+                    "group flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                    isActive
+                      ? "bg-blue-600 text-white shadow-md shadow-blue-900/30"
+                      : "text-slate-400 hover:bg-slate-800 hover:text-white"
                   )}
-                  aria-hidden="true"
-                />
-                {item.name}
-              </Link>
+                >
+                  <div className="flex items-center gap-3">
+                    <item.icon
+                      className={cn(
+                        "h-4 w-4 flex-shrink-0 transition-colors",
+                        isActive ? "text-white" : "text-slate-500 group-hover:text-slate-300"
+                      )}
+                    />
+                    {item.name}
+                  </div>
+                  {isActive && <ChevronRight className="h-3.5 w-3.5 text-blue-200" />}
+                </Link>
+              </motion.div>
             );
           })}
         </nav>
       </div>
-      <div className="flex flex-shrink-0 bg-slate-800 p-4">
+
+      {/* User area */}
+      <div className="flex-shrink-0 border-t border-slate-800 p-4">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shadow-md">
+              {initials}
+            </div>
+            <div>
+              <p className="text-xs font-medium text-slate-200 truncate max-w-[120px]">{name || "Morador"}</p>
+              <p className="text-[10px] text-slate-500">{role === 'Admin' ? 'Síndico' : 'Morador'}</p>
+            </div>
+          </div>
+        </div>
         <button
           onClick={logout}
-          className="group block w-full flex-shrink-0 items-center text-left text-sm font-medium text-slate-300 hover:text-white focus:outline-none transition-colors px-2 py-2 rounded flex hover:bg-slate-700"
+          className="w-full flex items-center gap-2.5 text-sm font-medium text-slate-400 hover:text-white px-3 py-2 rounded-lg hover:bg-slate-800 transition-all duration-200 group"
         >
-          <LogOut className="mr-3 h-5 w-5 flex-shrink-0 text-slate-400 group-hover:text-white" />
+          <LogOut className="h-4 w-4 flex-shrink-0 text-slate-500 group-hover:text-red-400 transition-colors" />
           Sair
         </button>
       </div>
-    </div>
+    </motion.div>
   );
 }
