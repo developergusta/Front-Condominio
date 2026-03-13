@@ -145,12 +145,19 @@ export default function Home() {
             <CardContent className="p-6">
               <h3 className="text-base font-semibold text-slate-800 mb-4">Ações Rápidas</h3>
               <div className="flex flex-wrap gap-3">
-                <Link href="/topics">
+                <Link href="/topics?status=Open">
                   <Button size="lg" className="gap-2">
                     <FileText className="h-4 w-4" /> Ver Tópicos Abertos
                     <ArrowRight className="h-4 w-4 ml-1" />
                   </Button>
                 </Link>
+                {role === 'Admin' && (
+                  <Link href="/topics?status=Closed">
+                    <Button size="lg" variant="outline" className="gap-2 border-slate-200">
+                      <CheckCircle2 className="h-4 w-4" /> Ver Tópicos Encerrados
+                    </Button>
+                  </Link>
+                )}
                 {canCreateTopic ? (
                   <Link href="/topics/new">
                     <Button size="lg" variant="outline" className="gap-2">

@@ -8,8 +8,10 @@ import { useAuth } from "@/components/providers/AuthProvider";
 import { format } from "date-fns";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
-import { Loader2, Plus, Clock, CheckCircle2, ArrowRight } from "lucide-react";
-import { motion } from "framer-motion";
+import { Loader2, Plus, Clock, CheckCircle2, ArrowRight, Filter } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Suspense } from "react";
 
 const stagger = { animate: { transition: { staggerChildren: 0.07 } } };
 const fadeInUp = {
@@ -17,8 +19,13 @@ const fadeInUp = {
   animate: { opacity: 1, y: 0 },
 };
 
-export default function TopicsList() {
+function TopicsListContent() {
   const { condominiumId, residentId, role } = useAuth();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  
+  const statusFilter = searchParams.get("status") || "All";
+  
   const [topics, setTopics] = useState<VoteTopicResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -41,6 +48,21 @@ export default function TopicsList() {
     (t) => t.createdByResidentId === residentId && t.status === "Open",
   ).length;
   const canCreateTopic = userOpenTopics < 2;
+
+  const filteredTopics = topics.filter((t) => {
+    if (statusFilter === "All") return true;
+    return t.status === statusFilter;
+  });
+
+  const handleFilterChange = (status: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (status === "All") {
+      params.delete("status");
+    } else {
+      params.set("status", status);
+    }
+    router.push(`/topics?${params.toString()}`);
+  };
 
   return (
     <MainLayout>
@@ -78,6 +100,23 @@ export default function TopicsList() {
               <Plus className="h-4 w-4" /> Criar Tópico
             </Button>
           )}
+        </div>
+
+        {/* Filters */}
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-none">
+          {["All", "Open", "Closed"].map((status) => (
+            <button
+              key={status}
+              onClick={() => handleFilterChange(status)}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap ${
+                statusFilter === status
+                  ? "bg-blue-600 text-white shadow-md shadow-blue-100"
+                  : "bg-white text-slate-600 border border-slate-200 hover:border-blue-300 hover:text-blue-600"
+              }`}
+            >
+              {status === "All" ? "Todos" : status === "Open" ? "Abertos" : "Encerrados"}
+            </button>
+          ))}
         </div>
 
         {error && (
@@ -124,12 +163,13 @@ export default function TopicsList() {
             animate="animate"
             className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
           >
-            {topics.map((topic) => {
+            {filteredTopics.map((topic) => {
               const isOpen = topic.status === "Open";
               return (
                 <motion.div
                   key={topic.id}
                   variants={fadeInUp}
+                  layout
                   transition={{ duration: 0.35 }}
                 >
                   <Link
@@ -183,5 +223,19 @@ export default function TopicsList() {
         )}
       </motion.div>
     </MainLayout>
+  );
+}
+
+export default function TopicsList() {
+  return (
+    <Suspense fallback={
+      <MainLayout>
+        <div className="flex justify-center p-32">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+        </div>
+      </MainLayout>
+    }>
+      <TopicsListContent />
+    </Suspense>
   );
 }
