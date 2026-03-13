@@ -78,8 +78,14 @@ export interface VoteResponse {
   createdAt: string;
 }
 
+export enum VoteOption {
+  Yes = 0,
+  No = 1,
+  Abstain = 2,
+}
+
 export interface RegisterVoteRequest {
-  option: 'Yes' | 'No' | 'Abstain' | number; // 0 = Yes, 1 = No, 2 = Abstain
+  option: VoteOption;
   justification?: string;
 }
 

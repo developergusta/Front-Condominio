@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
-import { VoteTopicResponse, VotingResultResponse, TopicReportResponse, TopicVoteDetailResponse } from "@/types";
+import { VoteTopicResponse, VotingResultResponse, TopicReportResponse, TopicVoteDetailResponse, VoteOption } from "@/types";
 import { topicService } from "@/lib/api/topic.service";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { Button } from "@/components/ui/Button";
@@ -81,11 +81,12 @@ export default function TopicDetailsPage() {
     setError("");
     setSuccess("");
     try {
-      const optionStr = optionNum === 0 ? 'Yes' : optionNum === 1 ? 'No' : 'Abstain';
-      await topicService.vote(topicId, { option: optionStr, justification: justification.trim() || undefined });
+      await topicService.vote(topicId, { option: optionNum as VoteOption, justification: justification.trim() || undefined });
       setSuccess("Seu voto foi registrado com sucesso!");
       setHasVoted(true);
-      setCurrentVote(optionStr);
+      
+      const optionStr = optionNum === 0 ? 'Yes' : optionNum === 1 ? 'No' : 'Abstain';
+      setCurrentVote(optionStr as 'Yes' | 'No' | 'Abstain');
       await loadData();
     } catch (err: any) {
       setError(err.message || "Falha ao registrar voto");
