@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { CondominiumResponse } from "@/types";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 const features = [
   { icon: CheckCircle2, text: "Votação digital 100% segura" },
@@ -271,6 +272,16 @@ export default function SetupPage() {
                   required
                 />
               </div>
+              {isLoginMode && (
+                <div className="flex justify-end">
+                  <Link
+                    href="/auth/forgot-password"
+                    className="text-xs font-medium text-blue-600 hover:underline"
+                  >
+                    Esqueceu sua senha?
+                  </Link>
+                </div>
+              )}
             </div>
 
             <Button

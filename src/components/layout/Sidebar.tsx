@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { Home, List, PlusCircle, LogOut, Settings, Building2, ChevronRight, X } from "lucide-react";
+import { Home, List, PlusCircle, LogOut, Settings, Building2, ChevronRight, X, Users } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -25,6 +25,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
   ];
 
   if (role === "Admin") {
+    navigation.push({ name: "Moradores", href: "/admin/residents", icon: Users });
     navigation.push({ name: "Configurações", href: "/settings", icon: Settings });
   }
 

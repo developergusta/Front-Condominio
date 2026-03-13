@@ -20,6 +20,15 @@ export interface ResidentResponse {
   createdAt: string;
 }
 
+export interface AdminResidentResponse extends ResidentResponse {
+  isBanned: boolean;
+}
+
+export interface UpdateResidentRequest {
+  name: string;
+  apartmentNumber: string;
+}
+
 export interface AuthResponse {
   token: string;
   residentId: string;
@@ -40,6 +49,20 @@ export interface CreateResidentRequest {
   password?: string;
   apartmentNumber: string;
   condominiumId: string;
+}
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  newPassword: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
 }
 
 export interface VoteTopicResponse {
