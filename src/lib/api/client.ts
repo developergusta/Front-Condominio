@@ -1,7 +1,11 @@
+import { loadingTracker } from './loading-tracker';
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 export async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> {
-  const url = `${API_URL}${endpoint}`;
+  loadingTracker.start();
+  try {
+    const url = `${API_URL}${endpoint}`;
   
   const defaultHeaders: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -63,5 +67,8 @@ export async function fetchApi<T>(endpoint: string, options?: RequestInit): Prom
     throw new Error(data.message || 'An unexpected error occurred');
   }
 
-  return data as T;
+    return data as T;
+  } finally {
+    loadingTracker.stop();
+  }
 }

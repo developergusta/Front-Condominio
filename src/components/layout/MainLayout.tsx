@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import Sidebar from "./Sidebar";
 import { Loader2, Menu, Building2 } from "lucide-react";
+import { LoadingBar } from "@/components/ui/LoadingBar";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -38,6 +39,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <div className="flex h-screen overflow-hidden bg-slate-50">
+      <LoadingBar />
       {/* Sidebar — handles both desktop (always visible) and mobile (drawer) */}
       <Sidebar
         isOpen={isSidebarOpen}
