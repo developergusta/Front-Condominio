@@ -6,13 +6,14 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { authService } from "@/lib/api/auth.service";
-import { Building2, Loader2, KeyRound, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Building2, Loader2, KeyRound, ArrowRight, CheckCircle2, Mail } from "lucide-react";
 import { motion } from "framer-motion";
 
 function ResetPasswordForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token");
+  const emailParam = searchParams.get("email");
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -57,6 +58,16 @@ function ResetPasswordForm() {
       <p className="text-sm text-slate-500 mb-8">
         Defina sua nova senha de acesso.
       </p>
+
+      {emailParam && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-100 rounded-xl flex items-center gap-3">
+          <Mail className="h-5 w-5 text-blue-600" />
+          <div>
+            <p className="text-[10px] text-blue-600 uppercase font-bold tracking-wider">Recuperando conta para</p>
+            <p className="text-sm font-semibold text-slate-900">{decodeURIComponent(emailParam)}</p>
+          </div>
+        </div>
+      )}
 
       {success ? (
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-4 space-y-4">

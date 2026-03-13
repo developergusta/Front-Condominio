@@ -29,8 +29,8 @@ export default function ForgotPasswordPage() {
       // In a real app, this would be via email, but as requested:
       // "redirecionar o usuário para uma tela de 'Nova Senha', passando esse token"
       setTimeout(() => {
-        router.push(`/auth/reset-password?token=${response.token}`);
-      }, 2000);
+        router.push("/setup");
+      }, 3000);
     } catch (err: any) {
       setError(err.message || "Falha ao solicitar recuperação de senha.");
     } finally {
